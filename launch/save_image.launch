@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<launch>
+  <node pkg="rosbag" type="play" name="rosbag" required="true" args="$(find pd3_demo)/makino_5.bag"/>
+  <node name="extract" pkg="image_view" type="extract_images" respawn="false" required="true" output="screen"  cwd="ROS_HOME">
+    <!-- <remap from="image" to="/camera/color/image_raw"/> -->
+    <remap from="image" to="/scan_to_image"/>
+<param name="filename_format" value="/home/issei/good_images_5/frame%04d.jpg" />
+<!-- <param name="filename_format" value="/home/issei/bad_images/frame%04d.jpg" /> -->
+</node> 
+</launch>

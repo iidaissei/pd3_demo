@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<launch>
+  <!-- joy node -->
+  <node pkg="joy" type="joy_node" name="joy_node" respawn="true" >
+    <!-- <param name="dev" type="string" value="/dev/dualshock" /> -->
+    <param name="dev" type="string" value="/dev/input/js0" />
+    <!-- <param name="dev" type="string" value="/dev/input/js1" /> -->
+    <param name="deadzone" value="0.05"/>
+  </node>
+
+  <!-- joycon -->
+  <arg name="l_scale" default="0.4" />
+  <arg name="a_scale" default="0.6" />
+  <node name="kobuki_joy_teleop" pkg="pd3_demo" type="kobuki_joy_teleop.py" respawn="true" >
+    <param name="/joycon/l_scale" type="double" value="$(arg l_scale)" />
+    <param name="/joycon/a_scale" type="double" value="$(arg a_scale)" />
+  </node>
+
+</launch>

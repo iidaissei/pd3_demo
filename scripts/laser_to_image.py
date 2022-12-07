@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # import roslib
@@ -11,13 +11,14 @@ from sensor_msgs.msg import LaserScan, Image
 from cv_bridge import CvBridge, CvBridgeError
 
 # Discretization Size
-disc_size = .007
-# disc_size = .010
+# disc_size = .007
+disc_size = .010
 # Discretization Factor
 disc_factor = 1/disc_size
 # Max Lidar Range
 # max_lidar_range = 10
-max_lidar_range = 3
+max_lidar_range = 2.5
+# max_lidar_range = 3.0
 # Create Image Size Using Range and Discretization Factor
 image_size = int(max_lidar_range*2*disc_factor)
 
@@ -58,10 +59,10 @@ class laser_to_image():
             else:
                 # Calculate angle of point and calculate X,Y position
                 angle = minAngle + float(i)*angleInc
-                xy_scan[i][0] = float(ranges[i]*math.cos(angle))
-                # xy_scan[i][1] = float(ranges[i]*math.cos(angle))
-                xy_scan[i][1] = float(ranges[i]*math.sin(angle))
-                # xy_scan[i][0] = float(ranges[i]*math.sin(angle))
+                #xy_scan[i][0] = float(ranges[i]*math.cos(angle))
+                xy_scan[i][1] = float(ranges[i]*math.cos(angle))
+                #xy_scan[i][1] = float(ranges[i]*math.sin(angle))
+                xy_scan[i][0] = float(ranges[i]*math.sin(angle))
 
         # Loop through all points plot in blank_image
         for i in range(num_pts):
@@ -69,13 +70,12 @@ class laser_to_image():
             pt_y = xy_scan[i, 1]
             if (pt_x < max_lidar_range) or (pt_x > -1 * (max_lidar_range-disc_size)) or (pt_y < max_lidar_range) or (pt_y > -1 * (max_lidar_range-disc_size)):
                 pix_x = int(math.floor((pt_x + max_lidar_range) * disc_factor))
-                # pix_x = int(math.floor((pt_x + max_lidar_range) ))
                 pix_y = int(math.floor((max_lidar_range - pt_y) * disc_factor))
-                # pix_y = int(math.floor((max_lidar_range - pt_y) ))
                 if (pix_x > image_size) or (pix_y > image_size):
-                    print "Error"
+                    print("Error")
                 else:
                     blank_image[pix_y, pix_x] = [0, 0, 0]
+                    #blank_image[pix_x, pix_y] = [0, 0, 0]
 
         # Convert CV2 Image to ROS Message
         img = self.bridge.cv2_to_imgmsg(blank_image, encoding="bgr8")

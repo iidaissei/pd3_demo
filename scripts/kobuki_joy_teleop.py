@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #--------------------------------------------------------------------
 # Title: ジョイスティックで足回り制御をするROSノード
@@ -15,7 +15,7 @@ class JoyCtrMegarover():
     def __init__(self):
         # Publisher
         # self.vel_pub = rospy.Publisher("/cmd_vel", Twist, queue_size = 1)
-        self.vel_pub = rospy.Publisher("/cmd_vel_mux/input/teleop", Twist, queue_size = 1)
+        self.vel_pub = rospy.Publisher("/mobile_base/commands/velocity", Twist, queue_size = 1)
         # Subscriber
         rospy.Subscriber("joy", Joy, self.joyCB)
         # Value

@@ -2,19 +2,16 @@
 # -*- coding: utf-8 -*-
 
 import cv2 as cv
-# import numpy as np
 import rospy
 import cv_bridge
 from sensor_msgs.msg import Image
 from detection_msgs.msg import BoundingBoxes
 
 # lidarと人の目標距離
-target_num = 0.5 # [m]
-# target_numをpixelに変換（lidar_to_imnageノードの変換処理に依存）
-# 少数点になるとcvの方でエラーになるので丸める
-# paramから取得するようにしたい（依存関係あるので）
-target_px = [250, 250 -round(target_num * 100)]
-
+target_dist = rospy.get_param("/follower_core/target_dist")
+disc_size   = rospy.get_param("/laser_to_image/disc_size")
+# target_numをpixelに変換. 少数点は丸める
+target_px = [250, 250 - round(target_dist/disc_size)]
 
 class CreateImage():
     def __init__(self):
@@ -38,11 +35,19 @@ class CreateImage():
             self.cy = round(bb_human.ymin + (bb_human.ymax - bb_human.ymin)/2)
             # print(self.cx, self.cy)
 
+    # 中心座標の描画処理
+    def plotRobotPoint(self):
+        cv.circle(self.image,
+                  center = (250, 250),
+                  radius = 5,
+                  color = (0, 255, 0),
+                  thickness = -1)
+
     # 目標座標の描画処理
     def plotTargetPoint(self):
         cv.circle(self.image,
                   center = (target_px[0], target_px[1]),
-                  radius = 5,
+                  radius = 10,
                   color = (255, 0, 0),
                   thickness = 2)
 
@@ -50,14 +55,15 @@ class CreateImage():
     def plotCenterPoint(self):
         cv.circle(self.image,
                   center = (self.cx, self.cy),
-                  radius = 10,
+                  radius = 8,
                   color = (0, 0, 255),
-                  thickness = 2)
+                  thickness = -1)
 
     # ウィンドウへの表示処理
     def showImage(self, msg):
         self.image = self.bridge.imgmsg_to_cv2(msg, desired_encoding = 'bgr8')
         self.plotTargetPoint()
+        self.plotRobotPoint()
         if self.cx == None:
             # rospy.loginfo("No human detected...")
             pass

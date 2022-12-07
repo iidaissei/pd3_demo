@@ -12,15 +12,16 @@ from cv_bridge import CvBridge, CvBridgeError
 
 # Discretization Size
 # disc_size = .007
-disc_size = .010
+# disc_size = .010
+disc_size = rospy.get_param("/laser_to_image/disc_size")
 # Discretization Factor
 disc_factor = 1/disc_size
 # Max Lidar Range
-# max_lidar_range = 10
-max_lidar_range = 2.5
+max_lidar_range = rospy.get_param("/laser_to_image/max_range")
 # max_lidar_range = 3.0
 # Create Image Size Using Range and Discretization Factor
 image_size = int(max_lidar_range*2*disc_factor)
+rospy.set_param("/laser_to_image/image_size", image_size)
 
 class laser_to_image():
     def __init__(self):
@@ -83,9 +84,9 @@ class laser_to_image():
         self.pub.publish(img)
 
         # Use CV to show image
-        cv2.imshow('result', blank_image), cv2.waitKey(3)
+        # cv2.imshow('laser_to_image', blank_image), cv2.waitKey(3)
         # 更新のため一旦消す
-        blank_image = np.zeros((image_size,image_size,3))
+        # blank_image = np.zeros((image_size,image_size,3))
 
 
 if __name__=='__main__':

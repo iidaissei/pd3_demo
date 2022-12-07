@@ -5,24 +5,23 @@ import rospy
 from geometry_msgs.msg import Twist
 from detection_msgs.msg import BoundingBoxes
 
-# lidarと人の目標距離
-target_num = 0.5 # [m]
-# target_numをpixelに変換（lidar_to_imnageノードの変換処理に依存）
-# 少数点になるとcvの方でエラーになるので丸める
-# target_px[x座標, y座標]
-target_px = [250, round(target_num * 100)] # paramから取得するようにしたい（依存関係あるので）
-Kp = 1000
-range_xmin = 200
-range_xmax = 300
-range_ymin = 100
-range_ymax = 250
+# パラメータの読み込み
+Kp = rospy.get_param("/follower_core/Kp")
+range_xmin  = rospy.get_param("/follower_core/range_xmin")
+range_xmax  = rospy.get_param("/follower_core/range_xmax")
+range_ymin  = rospy.get_param("/follower_core/range_ymin")
+range_ymax  = rospy.get_param("/follower_core/range_ymax")
+target_dist = rospy.get_param("/follower_core/target_dist")
+disc_size   = rospy.get_param("/laser_to_image/disc_size")
+# target_numをpixelに変換. target_px[x座標, y座標]
+target_px = [250, 250 - round(target_dist/disc_size)]
 
 
 class FollowCtrl():
     def __init__(self):
         rospy.Subscriber('yolov5/detections', BoundingBoxes, self.yoloCB)
-        # self.twist_pub = rospy.Publisher('cmd_vel', Twist, queue_size = 1)
-        self.twist_pub = rospy.Publisher("/mobile_base/commands/velocity", Twist, queue_size = 1)
+        self.twist_pub = rospy.Publisher('cmd_vel', Twist, queue_size = 1)
+        # self.twist_pub = rospy.Publisher("/mobile_base/commands/velocity", Twist, queue_size = 1)
         self.twist = Twist()
         self.bb = []
         self.cx = self.cy = None

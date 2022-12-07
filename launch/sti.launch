@@ -13,6 +13,8 @@
     <param name="angle_max" value="1.5707963"/>
   </node>
 
-  <node name="laser_to_image" pkg="pd3_demo" type="laser_to_image.py" output="screen"/>
-
+  <node name="laser_to_image" pkg="pd3_demo" type="laser_to_image.py" output="screen">
+    <param name="disc_size" type="double" value="0.01" />
+    <param name="max_range" type="double" value="2.5" />
+  </node>
 </launch>

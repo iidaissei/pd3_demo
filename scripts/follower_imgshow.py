@@ -13,6 +13,7 @@ disc_size   = rospy.get_param("/laser_to_image/disc_size")
 # target_numをpixelに変換. 少数点は丸める
 target_px = [250, 250 - round(target_dist/disc_size)]
 
+
 class CreateImage():
     def __init__(self):
         self.bridge = cv_bridge.CvBridge()
@@ -20,20 +21,17 @@ class CreateImage():
         rospy.Subscriber('/scan_to_image', Image, self.showImage)
         self.image = None
         self.bb = []
-        self.cx = None
-        self.cy = None
+        self.cx = self.cy = None
 
     def yoloCB(self, msg):
         self.bb = msg.bounding_boxes
         if not self.bb:
-            self.cx = None
-            self.cy = None
+            self.cx = self.cy = None
         else:
             # BoundingBoxesのClass"human"から重心座標を算出する
             bb_human = self.bb[0]
             self.cx = round(bb_human.xmin + (bb_human.xmax - bb_human.xmin)/2)
             self.cy = round(bb_human.ymin + (bb_human.ymax - bb_human.ymin)/2)
-            # print(self.cx, self.cy)
 
     # 中心座標の描画処理
     def plotRobotPoint(self):

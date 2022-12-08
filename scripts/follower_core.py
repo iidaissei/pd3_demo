@@ -45,16 +45,15 @@ class FollowCtrl():
                 # rospy.loginfo("No human detected...")
                 pass
             elif range_xmin <= self.cx <= range_xmax and range_ymin <= self.cy <= range_ymax: 
-                # 人の誤認識にある程度対応するため
+                rospy.loginfo("human detected...")
                 self.twist.linear.x = self.twist.angular.z = 0.0
                 err = self.cx - target_px[0]
                 self.twist.linear.x = 0.2
                 self.twist.angular.z = -float(err)/Kp
-                rospy.loginfo("human detected...")
                 pass
             else:
-                self.twist.linear.x = self.twist.angular.z = 0.0
                 rospy.loginfo("Out of range...")
+                self.twist.linear.x = self.twist.angular.z = 0.0
             self.twist_pub.publish(self.twist)
             rospy.sleep(0.1)
 

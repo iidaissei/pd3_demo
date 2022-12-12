@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <launch>
 
-  <node pkg="pd3_demo" type="follower_core.py" name="follower_core" output="screen">
+  <node pkg="pd3_demo" name="follower_core" type="follower_core.py" output="screen">
     <!-- LiDarと人との目標距離[m] -->
     <param name="target_dist" type="double" value="0.5" />
-    <!-- 人を検出する範囲[px] -->
+    <!-- 人を検出する範囲[px]の設定に使用-->
     <param name="range_xmin"  type="int" value="200" />
     <param name="range_xmax"  type="int" value="300" />
     <param name="range_ymin"  type="int" value="100" />
     <param name="range_ymax"  type="int" value="250" />
+    <!-- PublishするTwist型のトピック名 -->
+    <param name="pub_twist_name"  type="str" value="/cmd_vel" />
+    <!-- <param name="pub_twist_name"  type="str" value="/mobile_base/commands/velocity" /> -->
     <!-- PID制御の各ゲイン -->
     <param name="Kp" type="int" value="1000" />
   </node>

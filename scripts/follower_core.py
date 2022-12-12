@@ -7,12 +7,13 @@ from detection_msgs.msg import BoundingBoxes
 
 # パラメータの読み込み
 Kp = rospy.get_param("/follower_core/Kp")
-range_xmin  = rospy.get_param("/follower_core/range_xmin")
-range_xmax  = rospy.get_param("/follower_core/range_xmax")
-range_ymin  = rospy.get_param("/follower_core/range_ymin")
-range_ymax  = rospy.get_param("/follower_core/range_ymax")
-target_dist = rospy.get_param("/follower_core/target_dist")
-disc_size   = rospy.get_param("/laser_to_image/disc_size")
+range_xmin     = rospy.get_param("/follower_core/range_xmin")
+range_xmax     = rospy.get_param("/follower_core/range_xmax")
+range_ymin     = rospy.get_param("/follower_core/range_ymin")
+range_ymax     = rospy.get_param("/follower_core/range_ymax")
+target_dist    = rospy.get_param("/follower_core/target_dist")
+put_twist_name = rospy.get_param("/follower_core/put_twist_name")
+disc_size      = rospy.get_param("/laser_to_image/disc_size")
 # target_numをpixelに変換. target_px[x座標, y座標]
 target_px = [250, 250 - round(target_dist/disc_size)]
 
@@ -20,7 +21,8 @@ target_px = [250, 250 - round(target_dist/disc_size)]
 class FollowCtrl():
     def __init__(self):
         rospy.Subscriber('yolov5/detections', BoundingBoxes, self.yoloCB)
-        self.twist_pub = rospy.Publisher('cmd_vel', Twist, queue_size = 1)
+        self.twist_pub = rospy.Publisher(put_twist_name, Twist, queue_size = 1)
+        # self.twist_pub = rospy.Publisher('cmd_vel', Twist, queue_size = 1)
         # self.twist_pub = rospy.Publisher("/mobile_base/commands/velocity", Twist, queue_size = 1)
         self.twist = Twist()
         self.bb = []

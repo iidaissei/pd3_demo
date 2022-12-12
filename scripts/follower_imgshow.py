@@ -7,17 +7,17 @@ import cv_bridge
 from sensor_msgs.msg import Image
 from detection_msgs.msg import BoundingBoxes
 
-# lidarと人の目標距離
+# ロボットと追従対象者との目標距離を設定
 target_dist = rospy.get_param("/follower_core/target_dist")
 disc_size   = rospy.get_param("/laser_to_image/disc_size")
-# target_numをpixelに変換. 少数点は丸める
+# target_distからピクセル座標系で目標座標を生成する
 target_px = [250, 250 - round(target_dist/disc_size)]
 
 
 class CreateImage():
     def __init__(self):
         self.bridge = cv_bridge.CvBridge()
-        rospy.Subscriber('yolov5/detections', BoundingBoxes, self.yoloCB)
+        rospy.Subscriber('/yolov5/detections', BoundingBoxes, self.yoloCB)
         rospy.Subscriber('/scan_to_image', Image, self.showImage)
         self.image = None
         self.bb = []
@@ -67,7 +67,7 @@ class CreateImage():
             pass
         else:
             self.plotCenterPoint()
-        cv.imshow('follow_human', self.image)
+        cv.imshow('human_follower', self.image)
         cv.waitKey(1)
 
 

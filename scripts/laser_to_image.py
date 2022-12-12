@@ -84,9 +84,9 @@ class laser_to_image():
         self.pub.publish(img)
 
         # Use CV to show image
-        # cv2.imshow('laser_to_image', blank_image), cv2.waitKey(3)
+        cv2.imshow('laser_to_image', blank_image), cv2.waitKey(3)
         # 更新のため一旦消す
-        # blank_image = np.zeros((image_size,image_size,3))
+        blank_image = np.zeros((image_size,image_size,3))
 
 
 if __name__=='__main__':

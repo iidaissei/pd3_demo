@@ -68,7 +68,7 @@ class CreateImage():
         else:
             self.plotCenterPoint()
         cv.imshow('human_follower', self.image)
-        cv.waitKey(1)
+        cv.waitKey(10)
 
 
 if __name__=='__main__':

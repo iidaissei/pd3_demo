@@ -22,6 +22,7 @@ max_lidar_range = rospy.get_param("/laser_to_image/max_range")
 # Create Image Size Using Range and Discretization Factor
 image_size = int(max_lidar_range*2*disc_factor)
 rospy.set_param("/laser_to_image/image_size", image_size)
+imshow_flg = rospy.get_param("/laser_to_image/img_show")
 
 class laser_to_image():
     def __init__(self):
@@ -84,9 +85,12 @@ class laser_to_image():
         self.pub.publish(img)
 
         # Use CV to show image
-        cv2.imshow('laser_to_image', blank_image), cv2.waitKey(3)
-        # 更新のため一旦消す
-        blank_image = np.zeros((image_size,image_size,3))
+        if imshow_flg:
+            cv2.imshow('laser_to_image', blank_image), cv2.waitKey(3)
+            # 更新のため一旦消す
+            blank_image = np.zeros((image_size,image_size,3))
+        else:
+            pass
 
 
 if __name__=='__main__':

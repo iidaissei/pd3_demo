@@ -21,9 +21,9 @@
     <!-- 旋回PID制御の各ゲイン -->
     <param name="aKp"         type="double" value="0.02" />
     <param name="aKi"         type="double" value="0.001" />
-    <param name="aKd"         type="double" value="0.01" />
+    <param name="aKd"         type="double" value="0.001" />
     <!-- Twistの最大,最小速度 -->
-    <param name="max_linear"  type="double" value="0.3" />
+    <param name="max_linear"  type="double" value="0.2" />
     <param name="min_linear"  type="double" value="0.0" />
     <param name="max_angular" type="double" value="0.5" />
     <param name="min_angular" type="double" value="-0.5" />

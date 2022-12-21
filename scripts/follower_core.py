@@ -7,12 +7,16 @@ from sensor_msgs.msg import LaserScan
 from detection_msgs.msg import BoundingBoxes
 
 # PID制御のパラメータ
-xKp = rospy.get_param("/follower_core/xKp")
-xKi = rospy.get_param("/follower_core/xKi")
-xKd = rospy.get_param("/follower_core/xKd")
-yKp = rospy.get_param("/follower_core/yKp")
-yKi = rospy.get_param("/follower_core/yKi")
-yKd = rospy.get_param("/follower_core/yKd")
+lKp = rospy.get_param("/follower_core/lKp")
+lKi = rospy.get_param("/follower_core/lKi")
+lKd = rospy.get_param("/follower_core/lKd")
+aKp = rospy.get_param("/follower_core/aKp")
+aKi = rospy.get_param("/follower_core/aKi")
+aKd = rospy.get_param("/follower_core/aKd")
+max_linear  = rospy.get_param("/follower_core/max_linear")
+min_linear  = rospy.get_param("/follower_core/min_linear")
+max_angular = rospy.get_param("/follower_core/max_angular")
+min_angular = rospy.get_param("/follower_core/min_angular")
 
 # 追従関連のパラメータ
 range_xmin     = rospy.get_param("/follower_core/range_xmin")
@@ -33,13 +37,12 @@ class FollowCtrl():
     def __init__(self):
         rospy.Subscriber('/scan', LaserScan, self.laserCB)
         rospy.Subscriber('/yolov5/detections', BoundingBoxes, self.yoloCB)
-        self.twist_pub = rospy.Publisher(pub_twist_name, Twist, queue_size = 1)
+        self.twist_pub = rospy.Publisher(pub_twist_name, Twist, queue_size = 10)
         self.front_dist = 999
         self.twist = Twist()
         self.bb = []
         self.cx = self.cy = None
-        self.last_error_x = self.last_error_y = 0.0
-        self.delta_err_x = self.delta_err_y = 0.0
+        self.last_err_x = self.last_err_y = 0.0
 
     def laserCB(self, scan):
         ranges = scan.ranges
@@ -55,27 +58,89 @@ class FollowCtrl():
             self.cx = round(bb_human.xmin + (bb_human.xmax - bb_human.xmin)/2)
             self.cy = round(bb_human.ymin + (bb_human.ymax - bb_human.ymin)/2)
             # print(self.cx, self.cy)
+        # rospy.sleep(0.1)
 
     def pidUpdate(self):
         # 重心座標と目標座標の偏差を求める
         err_x = self.cx - target_px[0]
-        err_y = self.cy - target_px[0]
-        delta_err_x = err_x - self.last_err_x
-        delta_err_y = err_y - self.last_err_y
-        # PIDの算出
-        # Pの算出
-        p_x = xKp * err_x
-        p_y = xKp * err_y
-        # Iの算出
-        i_x += err_x * 
-        pid_x = (xKp * err_x + xKi * (err_x + last_err_x) + xKd * (err_x - self.last_err_x))
-        pid_y = (yKp * err_y + yKi * (err_y + last_err_y) + yKd * (err_y - self.last_err_y))
-        self.twist.linear.x  = pid_x
-        self.twist.angular.z = pid_y
+        err_y = target_px[1] - self.cy
+        print ("err_x: %d, err_y: %d" % (err_x, err_y))
+        # 並進PID制御の算出
+        pid_l = (lKp * err_y + lKi * (err_y + self.last_err_y) + lKd * (err_x - self.last_err_y))
+        pid_l = round(pid_l, 3)
+        if min_linear >= pid_l:
+            self.twist.linear.x = min_linear
+        if max_linear <= pid_l:
+            self.twist.linear.x = max_linear
+        else:
+            self.twist.linear.x = pid_l
+        # 旋回PID制御の算出
+        pid_a = (aKp * err_x + aKi * (err_x + self.last_err_x) + aKd * (err_y - self.last_err_x))
+        pid_a = round(pid_a, 3)
+        if min_angular >= pid_a:
+            self.twist.angular.z = min_angular
+        if max_angular <= pid_a:
+            self.twist.angular.z = max_angular
+        else:
+            self.twist.angular.z = pid_a
         self.last_err_x = err_x
         self.last_err_y = err_y
-        print(self.twist.linear.x)
-        print(self.twist.angular.z)
+        print ("pid_l: %d, pid_y: %d" % (pid_l, pid_a))
+        print(self.twist.linear.x, self.twist.angular.z)
+
+    def pdUpdate(self):
+        # 重心座標と目標座標の偏差を求める
+        err_x = self.cx - target_px[0]
+        err_y = target_px[1] - self.cy
+        print ("err_x: %d, err_y: %d" % (err_x, err_y))
+        # 並進PID制御の算出
+        pid_l = (lKp * err_y + lKd * (err_x - self.last_err_y))
+        pid_l = round(pid_l, 3)
+        if min_linear >= pid_l:
+            self.twist.linear.x = min_linear
+        if max_linear <= pid_l:
+            self.twist.linear.x = max_linear
+        else:
+            self.twist.linear.x = pid_l
+        # 旋回PID制御の算出
+        pid_a = (aKp * err_x + aKd * (err_y - self.last_err_x))
+        pid_a = round(pid_a, 3)
+        if min_angular >= pid_a:
+            self.twist.angular.z = min_angular
+        if max_angular <= pid_a:
+            self.twist.angular.z = max_angular
+        else:
+            self.twist.angular.z = pid_a
+        self.last_err_x = err_x
+        self.last_err_y = err_y
+        print ("pid_l: %d, pid_y: %d" % (pid_l, pid_a))
+        print(self.twist.linear.x, self.twist.angular.z)
+
+    def pUpdate(self):
+        # 重心座標と目標座標の偏差を求める
+        # err_x = self.cx - target_px[0]
+        err_x = self.cx - target_px[0]
+        err_y = target_px[1] - self.cy
+        print ("err_x: %d, err_y: %d" % (err_x, err_y))
+        # 並進P制御の算出
+        pid_l = round(err_y * 0.01, 3)
+        if min_linear >= pid_l:
+            self.twist.linear.x = min_linear
+            print ("min min min")
+        if max_linear <= pid_l:
+            self.twist.linear.x = max_linear
+        else:
+            self.twist.linear.x = pid_l
+        # 旋回P制御の算出
+        pid_a = round(err_x * 0.008, 3)
+        if min_angular >= pid_a:
+            self.twist.angular.z = min_angular
+        if max_angular <= pid_a:
+            self.twist.angular.z = max_angular
+        else:
+            self.twist.angular.z = pid_a
+        print ("pid_l: %d, pid_y: %d" % (pid_l, pid_a))
+        print(self.twist.linear.x, self.twist.angular.z)
 
     def execute(self):
         while not rospy.is_shutdown():
@@ -83,17 +148,22 @@ class FollowCtrl():
                 self.twist.linear.x = self.twist.angular.z = 0.0
                 rospy.loginfo("!! Emergency stop !!")
             if self.cx == None:
-                # self.twist.linear.x = self.twist.angular.z = 0.0
-                rospy.loginfo("No human detected...")
+                self.twist.linear.x = self.twist.angular.z = 0.0
+                # rospy.loginfo("No human detected...")
             elif range_xmin <= self.cx <= range_xmax and range_ymin <= self.cy <= range_ymax: 
                 # self.twist.linear.x = self.twist.angular.z = 0.0
-                self.pidUpdate()
-                rospy.loginfo("Human detected...")
+                # self.pidUpdate()
+                # self.pUpdate()
+                self.pdUpdate()
+                # rospy.loginfo("Human detected...")
             else:
-                # self.twist.linear.x = self.twist.angular.z = 0.0
-                rospy.loginfo("Out of range...")
+                self.twist.linear.x = self.twist.angular.z = 0.0
+                # rospy.loginfo("Out of range...")
+                pass
             self.twist_pub.publish(self.twist)
-            # rospy.sleep(0.1)
+            self.twist.linear.x = self.twist.angular.z = 0.0
+            rospy.sleep(0.1)
+
 
 
 if __name__=='__main__':

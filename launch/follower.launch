@@ -17,18 +17,18 @@
     <!-- <param name="pub_twist_name"  type="str" value="/cmd_vel" /> -->
     <param name="pub_twist_name"  type="str" value="/mobile_base/commands/velocity" />
     <!-- 並進PID制御の各ゲイン -->
-    <param name="lKp"         type="double" value="0.056" />
+    <param name="lKp"         type="double" value="0.045" />
     <param name="lKi"         type="double" value="0.0" />
-    <param name="lKd"         type="double" value="0.01" />
+    <param name="lKd"         type="double" value="0.015" />
     <!-- 旋回PID制御の各ゲイン -->
-    <param name="aKp"         type="double" value="0.0175" />
-    <param name="aKi"         type="double" value="0.008" />
-    <param name="aKd"         type="double" value="0.003" />
+    <param name="aKp"         type="double" value="0.010" />
+    <param name="aKi"         type="double" value="0.005" />
+    <param name="aKd"         type="double" value="0.002" />
     <!-- Twistの最大,最小速度 -->
-    <param name="max_linear"  type="double" value="0.2" />
+    <param name="max_linear"  type="double" value="0.16" />
     <param name="min_linear"  type="double" value="0.0" />
-    <param name="max_angular" type="double" value="0.45" />
-    <param name="min_angular" type="double" value="-0.45" />
+    <param name="max_angular" type="double" value="0.5" />
+    <param name="min_angular" type="double" value="-0.5" />
   </node>
 
   <!-- 人の重心座標や目標座標、ロボット座標を描画するノード -->

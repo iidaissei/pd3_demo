@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import rospy
+from pd3_demo.msg import Follower
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
 from detection_msgs.msg import BoundingBoxes
@@ -38,14 +39,16 @@ class HumanFollower():
         rospy.Subscriber('/scan', LaserScan, self.laserCB)
         rospy.Subscriber('/yolov5/detections', BoundingBoxes, self.yoloCB)
         self.twist_pub = rospy.Publisher(pub_twist_name, Twist, queue_size = 10)
+        self.custom_pub = rospy.Publisher("/custom_topic", Follower, queue_size = 10)
         self.front_dist = 0.0
         self.twist = Twist()
+        self.custom = Follower()
         self.cx = self.cy = None
         self.last_err_x = self.last_err_y = 0.0
 
     def laserCB(self, scan):
         # 前方90度の範囲の最小値を求める
-        self.fornt_dist = min(scan.ranges[180:520])
+        self.fornt_dist = min(scan.ranges[120:600])
 
     def yoloCB(self, bb_msg):
         if not bb_msg.bounding_boxes:
@@ -83,6 +86,9 @@ class HumanFollower():
         self.last_err_y = err_y
         print ("pid_l: %f, pid_a: %f" % (pid_l, pid_a))
         print(self.twist.linear.x, self.twist.angular.z)
+        self.custom.err = [err_x, err_y]
+        self.custom.center = [self.cx, self.cy]
+        # self.custom_pub.publish(self.custom)
 
     def pdUpdate(self):
         # 重心座標と目標座標の偏差を求める
@@ -129,7 +135,7 @@ class HumanFollower():
                 # rospy.loginfo("Out of range...")
                 pass
             self.twist_pub.publish(self.twist)
-            rospy.sleep(0.1)
+            # rospy.sleep(0.1)
 
 
 if __name__=='__main__':

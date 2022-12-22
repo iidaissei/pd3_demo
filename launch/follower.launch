@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <launch>
 
-  <!-- <node pkg="pd3_demo" name="follower_core" type="follower_core.py" output="screen"> -->
-  <node pkg="pd3_demo" name="follower_core" type="follower_2.py" output="screen">
+  <!-- 人追従機能を実現するメインノード -->
+  <node pkg="pd3_demo" name="follower_core" type="follower_core.py" output="screen">
+  <!-- <node pkg="pd3_demo" name="follower_core" type="follower_2.py" output="screen"> -->
     <!-- LiDarと人との目標距離[m] -->
     <param name="target_dist" type="double" value="0.5" />
     <!-- LiDarと人との安全距離[m]. この距離になったら緊急停止する -->
@@ -26,10 +27,11 @@
     <!-- Twistの最大,最小速度 -->
     <param name="max_linear"  type="double" value="0.18" />
     <param name="min_linear"  type="double" value="0.0" />
-    <param name="max_angular" type="double" value="0.4" />
-    <param name="min_angular" type="double" value="-0.4" />
+    <param name="max_angular" type="double" value="0.35" />
+    <param name="min_angular" type="double" value="-0.35" />
   </node>
 
+  <!-- 人の重心座標や目標座標、ロボット座標を描画するノード -->
   <node pkg="pd3_demo" type="follower_imgshow.py" name="follower_imgshow" output="screen"/>
 
 </launch>

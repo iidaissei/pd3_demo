@@ -20,16 +20,14 @@ class CreateImage():
         rospy.Subscriber('/yolov5/detections', BoundingBoxes, self.yoloCB)
         rospy.Subscriber('/scan_to_image', Image, self.showImage)
         self.image = None
-        self.bb = []
         self.cx = self.cy = None
 
     def yoloCB(self, msg):
-        self.bb = msg.bounding_boxes
-        if not self.bb:
+        if not bb_msg.bounding_boxes:
             self.cx = self.cy = None
         else:
             # BoundingBoxesのClass"human"から重心座標を算出する
-            bb_human = self.bb[0]
+            bb_human = bb_msg.bounding_boxes[0]
             self.cx = round(bb_human.xmin + (bb_human.xmax - bb_human.xmin)/2)
             self.cy = round(bb_human.ymin + (bb_human.ymax - bb_human.ymin)/2)
 
@@ -37,15 +35,16 @@ class CreateImage():
     def plotRobotPoint(self):
         cv.circle(self.image,
                   center = (250, 250),
-                  radius = 5,
+                  radius = 5, 
                   color = (0, 255, 0),
                   thickness = -1)
 
     # 目標座標の描画処理
     def plotTargetPoint(self):
         cv.circle(self.image,
-                  center = (target_px[0], target_px[1]),
-                  radius = 10,
+                  center = (target_px[0],
+                  target_px[1]),
+                  radius = 10, 
                   color = (255, 0, 0),
                   thickness = 2)
 
@@ -62,13 +61,13 @@ class CreateImage():
         self.image = self.bridge.imgmsg_to_cv2(msg, desired_encoding = 'bgr8')
         self.plotTargetPoint()
         self.plotRobotPoint()
-        if self.cx == None:
+        if self.cx == self.cy == None:
             # rospy.loginfo("No human detected...")
             pass
         else:
             self.plotCenterPoint()
         cv.imshow('human_follower', self.image)
-        cv.waitKey(10)
+        cv.waitKey(1)
 
 
 if __name__=='__main__':

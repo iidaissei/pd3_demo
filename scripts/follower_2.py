@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import rospy
-import message_filters
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
 from detection_msgs.msg import BoundingBoxes
@@ -41,16 +40,14 @@ class HumanFollower():
         self.twist_pub = rospy.Publisher(pub_twist_name, Twist, queue_size = 10)
         self.twist = Twist()
         self.front_dist = 0.0
-        self.bb = []
         self.cx = self.cy = None
         self.last_err_x = self.last_err_y = 0.0
 
     def scanCB(self, scan):
-        # self.front_dist = scan.ranges[len(scan.ranges) // 2]
-        self.front_dist = min(scan.ranges[180:520])
+        # 前方90度の範囲の最小値を求める
+        self.fornt_dist = min(scan.ranges[180:520])
 
     def yoloCB(self, bb_msg):
-        # print(bb_msg)
         if not bb_msg.bounding_boxes:
             self.cx = self.cy = None
         else:
@@ -59,21 +56,6 @@ class HumanFollower():
             self.cx = round(bb_human.xmin + (bb_human.xmax - bb_human.xmin)/2)
             self.cy = round(bb_human.ymin + (bb_human.ymax - bb_human.ymin)/2)
             # print(self.cx, self.cy)
-
-    # def topicCB(self, scan, bb_msg):
-    #     # /scan トピックの処理
-    #     self.front_dist = scan.ranges[len(scan.ranges) // 2]
-    #     print (self.front_dist)
-    #
-    #     # /yolov5/detections トピックの処理
-    #     if not bb_msg.bounding_boxes:
-    #         self.cx = self.cy = None
-    #     else:
-    #         # BoundingBoxesのClass"human"から重心座標を算出する
-    #         bb_human = bb_msg.bounding_boxes[0]
-    #         self.cx = round(bb_human.xmin + (bb_human.xmax - bb_human.xmin)/2)
-    #         self.cy = round(bb_human.ymin + (bb_human.ymax - bb_human.ymin)/2)
-    #     print(self.cx, self.cy)
 
     def pidUpdate(self):
         # 重心座標と目標座標の偏差を求める

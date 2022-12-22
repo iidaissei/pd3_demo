@@ -22,7 +22,7 @@ class CreateImage():
         self.image = None
         self.cx = self.cy = None
 
-    def yoloCB(self, msg):
+    def yoloCB(self, bb_msg):
         if not bb_msg.bounding_boxes:
             self.cx = self.cy = None
         else:

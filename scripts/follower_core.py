@@ -121,8 +121,8 @@ class HumanFollower():
                 self.twist.linear.x = self.twist.angular.z = 0.0
                 # rospy.loginfo("No human detected...")
             elif range_xmin <= self.cx <= range_xmax and range_ymin <= self.cy <= range_ymax: 
-                # self.pidUpdate()
-                self.pdUpdate()
+                self.pidUpdate()
+                # self.pdUpdate()
                 # rospy.loginfo("Human detected...")
             else:
                 self.twist.linear.x = self.twist.angular.z = 0.0

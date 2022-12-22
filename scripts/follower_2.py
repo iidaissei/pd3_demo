@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import rospy
+import message_filters
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
 from detection_msgs.msg import BoundingBoxes
@@ -35,28 +36,44 @@ target_px = [250, 250 - round(target_dist / disc_size)]
 
 class HumanFollower():
     def __init__(self):
-        rospy.Subscriber('/scan', LaserScan, self.topicCB, callbck_args = 1)
-        rospy.Subscriber('/yolov5/detections', BoundingBoxes, self.topicCB, callbck_args = 2)
+        rospy.Subscriber('/scan', LaserScan, self.scanCB)
+        rospy.Subscriber('/yolov5/detections', BoundingBoxes, self.yoloCB)
         self.twist_pub = rospy.Publisher(pub_twist_name, Twist, queue_size = 10)
         self.twist = Twist()
         self.front_dist = 0.0
+        self.bb = []
         self.cx = self.cy = None
         self.last_err_x = self.last_err_y = 0.0
 
-    def topicCB(self, scan, bb_msg):
-        # /scan トピックの処理
+    def scanCB(self, scan):
         # self.front_dist = scan.ranges[len(scan.ranges) // 2]
-        self.front_dist = scan.range_min
-        # self.laser_min = scan.range_min
-        # /yolov5/detections トピックの処理
+        self.front_dist = min(scan.ranges[180:520])
+
+    def yoloCB(self, bb_msg):
+        # print(bb_msg)
         if not bb_msg.bounding_boxes:
             self.cx = self.cy = None
         else:
             # BoundingBoxesのClass"human"から重心座標を算出する
-            bb_human = bb_msg.bounding_boxesb[0]
+            bb_human = bb_msg.bounding_boxes[0]
             self.cx = round(bb_human.xmin + (bb_human.xmax - bb_human.xmin)/2)
             self.cy = round(bb_human.ymin + (bb_human.ymax - bb_human.ymin)/2)
             # print(self.cx, self.cy)
+
+    # def topicCB(self, scan, bb_msg):
+    #     # /scan トピックの処理
+    #     self.front_dist = scan.ranges[len(scan.ranges) // 2]
+    #     print (self.front_dist)
+    #
+    #     # /yolov5/detections トピックの処理
+    #     if not bb_msg.bounding_boxes:
+    #         self.cx = self.cy = None
+    #     else:
+    #         # BoundingBoxesのClass"human"から重心座標を算出する
+    #         bb_human = bb_msg.bounding_boxes[0]
+    #         self.cx = round(bb_human.xmin + (bb_human.xmax - bb_human.xmin)/2)
+    #         self.cy = round(bb_human.ymin + (bb_human.ymax - bb_human.ymin)/2)
+    #     print(self.cx, self.cy)
 
     def pidUpdate(self):
         # 重心座標と目標座標の偏差を求める
@@ -96,7 +113,7 @@ class HumanFollower():
         pid_l = round(pid_l, 3)
         if min_linear >= pid_l:
             self.twist.linear.x = min_linear
-        if max_linear <= pid_l:
+        elif max_linear <= pid_l:
             self.twist.linear.x = max_linear
         else:
             self.twist.linear.x = pid_l
@@ -105,13 +122,13 @@ class HumanFollower():
         pid_a = round(pid_a, 3)
         if min_angular >= pid_a:
             self.twist.angular.z = min_angular
-        if max_angular <= pid_a:
+        elif max_angular <= pid_a:
             self.twist.angular.z = max_angular
         else:
             self.twist.angular.z = pid_a
         self.last_err_x = err_x
         self.last_err_y = err_y
-        print ("pid_l: %d, pid_y: %d" % (pid_l, pid_a))
+        print ("pid_l: %f, pid_a: %f" % (pid_l, pid_a))
         print(self.twist.linear.x, self.twist.angular.z)
 
     def pUpdate(self):
@@ -123,7 +140,7 @@ class HumanFollower():
         # 並進P制御の算出
         pid_l = round(err_y * 0.01, 3)
         if min_linear >= pid_l:
-            self.twist.linear.x = min_linear
+            self.twist.linear.x = 0.0
             print ("min min min")
         if max_linear <= pid_l:
             self.twist.linear.x = max_linear
@@ -137,11 +154,11 @@ class HumanFollower():
             self.twist.angular.z = max_angular
         else:
             self.twist.angular.z = pid_a
-        print ("pid_l: %d, pid_y: %d" % (pid_l, pid_a))
+        print("pid_l: %d, pid_a: %d" % (pid_l, pid_a))
         print(self.twist.linear.x, self.twist.angular.z)
 
     def followCtrl(self):
-        try:
+        while not rospy.is_shutdown():
             # self.twist.linear.x = self.twist.angular.z = 0.0
             if self.front_dist < safety_dist:
                 self.twist.linear.x = self.twist.angular.z = 0.0
@@ -160,13 +177,9 @@ class HumanFollower():
                 pass
             self.twist_pub.publish(self.twist)
             rospy.sleep(0.1)
-            # rospy.spin()
-        except KeyboardInterrupt:
-            rospy.loginfo("Keyboard Interrupt...")
 
 
 if __name__=='__main__':
     rospy.init_node('follower_core', anonymous = True)
     ci = HumanFollower()
     ci.followCtrl()
-    rospy.spin()

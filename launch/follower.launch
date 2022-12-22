@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <launch>
 
-  <node pkg="pd3_demo" name="follower_core" type="follower_core.py" output="screen">
+  <!-- <node pkg="pd3_demo" name="follower_core" type="follower_core.py" output="screen"> -->
+  <node pkg="pd3_demo" name="follower_core" type="follower_2.py" output="screen">
     <!-- LiDarと人との目標距離[m] -->
     <param name="target_dist" type="double" value="0.5" />
     <!-- LiDarと人との安全距離[m]. この距離になったら緊急停止する -->
@@ -17,16 +18,16 @@
     <!-- 並進PID制御の各ゲイン -->
     <param name="lKp"         type="double" value="0.056" />
     <param name="lKi"         type="double" value="0.00" />
-    <param name="lKd"         type="double" value="0.00" />
+    <param name="lKd"         type="double" value="0.0" />
     <!-- 旋回PID制御の各ゲイン -->
-    <param name="aKp"         type="double" value="0.017" />
-    <param name="aKi"         type="double" value="0.0" />
-    <param name="aKd"         type="double" value="0.0" />
+    <param name="aKp"         type="double" value="0.019" />
+    <param name="aKi"         type="double" value="0.01" />
+    <param name="aKd"         type="double" value="0.003" />
     <!-- Twistの最大,最小速度 -->
-    <param name="max_linear"  type="double" value="0.2" />
+    <param name="max_linear"  type="double" value="0.18" />
     <param name="min_linear"  type="double" value="0.0" />
-    <param name="max_angular" type="double" value="1.0" />
-    <param name="min_angular" type="double" value="-1.0" />
+    <param name="max_angular" type="double" value="0.4" />
+    <param name="min_angular" type="double" value="-0.4" />
   </node>
 
   <node pkg="pd3_demo" type="follower_imgshow.py" name="follower_imgshow" output="screen"/>

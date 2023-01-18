@@ -16,15 +16,16 @@
     <!-- PublishするTwist型のトピック名 -->
     <param name="pub_twist_name"  type="str" value="/cmd_vel_mux/input/teleop" />
     <!-- 並進PID制御の各ゲイン -->
-    <param name="lKp"         type="double" value="0.09" />
+    <param name="lKp"         type="double" value="0.05" />
     <param name="lKi"         type="double" value="0.00" />
-    <param name="lKd"         type="double" value="0.07" />
+    <param name="lKd"         type="double" value="0.08" />
     <!-- 旋回PID制御の各ゲイン -->
-    <param name="aKp"         type="double" value="0.02" />
+    <!-- Pゲインを0.014より少しさげるか、Dを増やしてみる -->
+    <param name="aKp"         type="double" value="0.014" />
     <param name="aKi"         type="double" value="0.00" />
-    <param name="aKd"         type="double" value="0.005" />
+    <param name="aKd"         type="double" value="0.0095" />
     <!-- Twistの最大,最小速度 -->
-    <param name="max_linear"  type="double" value="0.18" />
+    <param name="max_linear"  type="double" value="0.16" />
     <param name="min_linear"  type="double" value="0.0" />
     <param name="max_angular" type="double" value="0.4" />
     <param name="min_angular" type="double" value="-0.4" />

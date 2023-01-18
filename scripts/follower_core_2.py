@@ -7,50 +7,40 @@ from geometry_msgs.msg import Twist
 from detection_msgs.msg import BoundingBoxes
 
 # 制御関連のパラメータ
-lKp = rospy.get_param("follower_core/lKp")
-lKi = rospy.get_param("follower_core/lKi")
-lKd = rospy.get_param("follower_core/lKd")
-aKp = rospy.get_param("follower_core/aKp")
-aKi = rospy.get_param("follower_core/aKi")
-aKd = rospy.get_param("follower_core/aKd")
-max_linear  = rospy.get_param("follower_core/max_linear")
-min_linear  = rospy.get_param("follower_core/min_linear")
-max_angular = rospy.get_param("follower_core/max_angular")
-min_angular = rospy.get_param("follower_core/min_angular")
-pub_twist_name = rospy.get_param("follower_core/pub_twist_name")
+lKp = rospy.get_param("/follower_core/lKp")
+lKi = rospy.get_param("/follower_core/lKi")
+lKd = rospy.get_param("/follower_core/lKd")
+aKp = rospy.get_param("/follower_core/aKp")
+aKi = rospy.get_param("/follower_core/aKi")
+aKd = rospy.get_param("/follower_core/aKd")
+max_linear  = rospy.get_param("/follower_core/max_linear")
+min_linear  = rospy.get_param("/follower_core/min_linear")
+max_angular = rospy.get_param("/follower_core/max_angular")
+min_angular = rospy.get_param("/follower_core/min_angular")
+pub_twist_name = rospy.get_param("/follower_core/pub_twist_name")
 
-# 追従関連のパラメータ
-range_xmin = rospy.get_param("follower_core/range_xmin")
-range_xmax = rospy.get_param("follower_core/range_xmax")
-range_ymin = rospy.get_param("follower_core/range_ymin")
-range_ymax = rospy.get_param("follower_core/range_ymax")
+# 人を認識する範囲のパラメータ
+range_xmin     = rospy.get_param("/follower_core/range_xmin")
+range_xmax     = rospy.get_param("/follower_core/range_xmax")
+range_ymin     = rospy.get_param("/follower_core/range_ymin")
+range_ymax     = rospy.get_param("/follower_core/range_ymax")
 
 # 目標座標(target_px)の生成に使用するパラメータ
 disc_size      = rospy.get_param("/laser_to_image/disc_size")
-target_dist    = rospy.get_param("follower_core/target_dist")
+target_dist    = rospy.get_param("/follower_core/target_dist")
 # 目標座標の生成. [x座標, y座標]
 target_px = [250, 250 - round(target_dist/disc_size)]
 
 
 class HumanFollower():
     def __init__(self):
-        self.bb_sub = rospy.Subscriber('/yolov5/detections', BoundingBoxes, self.yoloCB)
-        self.twist_pub = rospy.Publisher(pub_twist_name, Twist, queue_size = 3)
+        self.bb_sub = rospy.Subscriber('/yolov5/detections', BoundingBoxes, self.followCtrl)
+        self.twist_pub = rospy.Publisher(pub_twist_name, Twist, queue_size = 10)
         self.last_err_x = self.last_err_y = 0.0
         self.cx = self.cy = None
         self.twist = Twist()
-        self.rate = rospy.Rate(50)
-        # self.custom_pub = rospy.Publisher("/custom_topic", Follower, queue_size = 10)
-        # self.custom = Follower()
-
-    def yoloCB(self, bb_msg):
-        if not bb_msg.bounding_boxes:
-            self.cx = self.cy = None
-        else:
-            # BoundingBoxesのClass"human"から重心座標を算出する
-            bb_human = bb_msg.bounding_boxes[0]
-            self.cx = round(bb_human.xmin + (bb_human.xmax - bb_human.xmin)/2)
-            self.cy = round(bb_human.ymin + (bb_human.ymax - bb_human.ymin)/2)
+        self.pd3_pub = rospy.Publisher("/pd3_topic", Follower, queue_size = 10)
+        self.pd3_data = Follower()
 
     def pidUpdate(self):
         # 重心座標と目標座標の偏差を求める
@@ -85,23 +75,27 @@ class HumanFollower():
         print ("pid_linear: %f, pid_angular: %f" % (pid_l, pid_a))
         print(self.twist.linear.x, self.twist.angular.z)
 
-    def followCtrl(self):
-        while not rospy.is_shutdown():
-            if self.cx == None:
-                self.twist.linear.x = self.twist.angular.z = 0.0
-                # rospy.loginfo("No human detected...")
-            elif range_xmin <= self.cx <= range_xmax and range_ymin <= self.cy <= range_ymax: 
+    def followCtrl(self, bb_msg):
+        if not bb_msg.bounding_boxes:
+            self.cx = self.cy = None
+            # self.twist.linear.x = self.twist.angular.z = 0.0
+            rospy.loginfo("No human detected...")
+        else:
+            # BoundingBoxesのClass"human"から重心座標を算出する
+            bb_human = bb_msg.bounding_boxes[0]
+            self.cx = round(bb_human.xmin + (bb_human.xmax - bb_human.xmin)/2)
+            self.cy = round(bb_human.ymin + (bb_human.ymax - bb_human.ymin)/2)
+            if range_xmin <= self.cx <= range_xmax and range_ymin <= self.cy <= range_ymax: 
                 self.pidUpdate()
                 rospy.loginfo("Human detected...")
             else:
-                self.twist.linear.x = self.twist.angular.z = 0.0
+                # self.twist.linear.x = self.twist.angular.z = 0.0
                 # rospy.loginfo("Out of range...")
                 pass
             self.twist_pub.publish(self.twist)
-            self.rate.sleep()
 
 
 if __name__=='__main__':
     rospy.init_node('follower_core', anonymous = True)
     ci = HumanFollower()
-    ci.followCtrl()
+    rospy.spin()

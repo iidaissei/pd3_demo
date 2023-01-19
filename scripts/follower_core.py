@@ -35,11 +35,11 @@ target_px = [250, 250 - round(target_dist/disc_size)]
 class HumanFollower():
     def __init__(self):
         self.bb_sub = rospy.Subscriber('/yolov5/detections', BoundingBoxes, self.yoloCB)
-        self.twist_pub = rospy.Publisher(pub_twist_name, Twist, queue_size = 3)
+        self.twist_pub = rospy.Publisher(pub_twist_name, Twist, queue_size = 10)
         self.last_err_x = self.last_err_y = 0.0
         self.cx = self.cy = None
         self.twist = Twist()
-        self.rate = rospy.Rate(50)
+        self.rate = rospy.Rate(100)
         # self.custom_pub = rospy.Publisher("/custom_topic", Follower, queue_size = 10)
         # self.custom = Follower()
 
@@ -94,7 +94,7 @@ class HumanFollower():
                 self.pidUpdate()
                 rospy.loginfo("Human detected...")
             else:
-                self.twist.linear.x = self.twist.angular.z = 0.0
+                # self.twist.linear.x = self.twist.angular.z = 0.0
                 # rospy.loginfo("Out of range...")
                 pass
             self.twist_pub.publish(self.twist)

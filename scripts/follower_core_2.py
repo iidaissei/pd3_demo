@@ -39,8 +39,8 @@ class HumanFollower():
         self.last_err_x = self.last_err_y = 0.0
         self.cx = self.cy = None
         self.twist = Twist()
-        self.pd3_pub = rospy.Publisher("/pd3_topic", Follower, queue_size = 10)
-        self.pd3_data = Follower()
+        # self.pd3_pub = rospy.Publisher("/pd3_topic", Follower, queue_size = 10)
+        # self.pd3_data = Follower()
 
     def pidUpdate(self):
         # 重心座標と目標座標の偏差を求める
@@ -72,7 +72,7 @@ class HumanFollower():
         # self.pd3_data.center = [self.cx, self.cy]
         # self.pd3_pub.publish(self.pd3_data)
         ############################################
-        print ("pid_linear: %f, pid_angular: %f" % (pid_l, pid_a))
+        print("pid_linear: %f, pid_angular: %f" % (pid_l, pid_a))
         print(self.twist.linear.x, self.twist.angular.z)
 
     def followCtrl(self, bb_msg):
@@ -90,7 +90,7 @@ class HumanFollower():
                 rospy.loginfo("Human detected...")
             else:
                 # self.twist.linear.x = self.twist.angular.z = 0.0
-                # rospy.loginfo("Out of range...")
+                rospy.loginfo("Out of range...")
                 pass
             self.twist_pub.publish(self.twist)
 

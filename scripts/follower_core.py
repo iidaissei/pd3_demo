@@ -78,7 +78,7 @@ class HumanFollower():
     def followCtrl(self, bb_msg):
         if not bb_msg.bounding_boxes:
             self.cx = self.cy = None
-            self.twist.linear.x = self.twist.angular.z = 0.0
+            # self.twist.linear.x = self.twist.angular.z = 0.0
             rospy.loginfo("No human detected...")
         else:
             # BoundingBoxesのClass"human"から重心座標を算出する
@@ -92,7 +92,7 @@ class HumanFollower():
                 self.twist.linear.x = self.twist.angular.z = 0.0
                 rospy.loginfo("Out of range...")
                 pass
-        self.twist_pub.publish(self.twist)
+            self.twist_pub.publish(self.twist)
 
 
 if __name__=='__main__':

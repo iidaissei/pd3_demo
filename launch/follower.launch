@@ -2,41 +2,37 @@
 <launch>
 
   <!-- 人追従機能を実現するメインノード -->
-  <!-- <node pkg="pd3_demo" name="follower_core" type="follower_core.py" output="screen"> -->
-  <node pkg="pd3_demo" name="follower_core" type="follower_core_2.py" output="screen">
+  <node pkg="pd3_demo" name="follower_core" type="follower_core.py" output="screen">
 
     <!-- LiDarと人との目標距離[m] -->
     <param name="target_dist" type="double" value="0.5" />
     <!-- LiDarと人との安全距離[m]. この距離になったら緊急停止する -->
-    <param name="safety_dist" type="double" value="0.25" />
+    <param name="safety_dist" type="double" value="0.30" />
 
     <!-- 人を検出する範囲[px]の設定に使用-->
-    <param name="range_xmin"  type="int" value="200" />
-    <param name="range_xmax"  type="int" value="300" />
-    <param name="range_ymin"  type="int" value="90" />
+    <param name="range_xmin"  type="int" value="130" />
+    <param name="range_xmax"  type="int" value="370" />
+    <param name="range_ymin"  type="int" value="80" />
     <param name="range_ymax"  type="int" value="250" />
 
     <!-- PublishするTwist型のトピック名 -->
     <param name="pub_twist_name"  type="str" value="/cmd_vel_mux/input/teleop" />
 
     <!-- 並進PID制御の各ゲイン -->
-    <!-- <param name="lKp"         type="double" value="0.0047" /> -->
-    <param name="lKp"         type="double" value="0.0039" />
-    <param name="lKi"         type="double" value="0.000" />
-    <!-- <param name="lKd"         type="double" value="0.005" /> -->
-    <param name="lKd"         type="double" value="0.02" />
+    <param name="lKp"         type="double" value="0.0040" />
+    <param name="lKi"         type="double" value="0.0001" />
+    <param name="lKd"         type="double" value="0.005" />
     <!-- 旋回PID制御の各ゲイン -->
-    <!-- <param name="aKp"         type="double" value="0.0036" /> -->
-    <param name="aKp"         type="double" value="0.0039" />
-    <param name="aKi"         type="double" value="0.001" />
-    <!-- <param name="aKd"         type="double" value="0.0039" /> -->
-    <param name="aKd"         type="double" value="0.0042" />
+    <param name="aKp"         type="double" value="0.0032" />
+    <param name="aKi"         type="double" value="0.0005" />
+    <param name="aKd"         type="double" value="0.0048" />
+    <!-- <param name="aKd"         type="double" value="0.0043" /> -->
 
     <!-- Twistの最大,最小速度 -->
-    <param name="max_linear"  type="double" value="0.20" />
-    <param name="min_linear"  type="double" value="0.0" />
-    <param name="max_angular" type="double" value="0.35" />
-    <param name="min_angular" type="double" value="-0.35" />
+    <param name="max_linear"  type="double" value="0.17" />
+    <param name="min_linear"  type="double" value="0.00" />
+    <param name="max_angular" type="double" value="0.4" />
+    <param name="min_angular" type="double" value="-0.4" />
 
   </node>
 

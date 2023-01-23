@@ -1,2 +1,2 @@
-int16[] center
-int16[] err
+int16 err_x
+int16 err_y

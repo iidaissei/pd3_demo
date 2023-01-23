@@ -17,12 +17,11 @@ class EmergencyStop():
         self.twist.linear.x = self.twist.angular.z = 0.0
 
     def twistPub(self, scan):
-        # min_dist = scan.ranges[359]
         # 小さすぎる値を取り除く処理。
         filtered_ranges = [i for i in scan.ranges if not i < 0.05]
         min_dist = min(filtered_ranges)
+        # min_distがsafety_dist以下の値であれば速度を0にする
         if min_dist < safety_dist:
-            # print (min_dist)
             self.twist_pub.publish(self.twist)
             rospy.loginfo("!!Emergency Stop!!")
         else:

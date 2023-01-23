@@ -62,7 +62,6 @@ class CreateImage():
         self.plotTargetPoint()
         self.plotRobotPoint()
         if self.cx == self.cy == None:
-            # rospy.loginfo("No human detected...")
             pass
         else:
             self.plotCenterPoint()

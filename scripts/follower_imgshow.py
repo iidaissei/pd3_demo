@@ -49,7 +49,7 @@ class CreateImage():
                   thickness = 2)
 
     # 重心座標の描画処理
-    def plotCenterPoint(self):
+    def plotCentroidPoint(self):
         cv.circle(self.image,
                   center = (self.cx, self.cy),
                   radius = 8,
@@ -64,7 +64,7 @@ class CreateImage():
         if self.cx == self.cy == None:
             pass
         else:
-            self.plotCenterPoint()
+            self.plotCentroidPoint()
         cv.imshow('human_follower', self.image)
         cv.waitKey(1)
 

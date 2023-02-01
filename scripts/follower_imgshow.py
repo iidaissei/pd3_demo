@@ -8,7 +8,7 @@ from sensor_msgs.msg import Image
 from detection_msgs.msg import BoundingBoxes
 
 # ロボットと追従対象者との目標距離を設定
-target_dist = rospy.get_param("/follower_core/target_dist")
+target_dist = rospy.get_param("/follower_control/target_dist")
 disc_size   = rospy.get_param("/laser_to_image/disc_size")
 # target_distからピクセル座標系で目標座標を生成する
 target_px = [250, 250 - round(target_dist/disc_size)]
@@ -70,6 +70,9 @@ class CreateImage():
 
 
 if __name__=='__main__':
-    rospy.init_node('follower_imgshow', anonymous = True)
-    ci = CreateImage()
-    rospy.spin()
+    try:
+        rospy.init_node('follower_imgshow', anonymous = True)
+        ci = CreateImage()
+        rospy.spin()
+    except rospy.ROSException:
+        pass

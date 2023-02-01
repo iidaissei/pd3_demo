@@ -5,8 +5,8 @@ import rospy
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
 
-safety_dist    = rospy.get_param("/follower_core/safety_dist")
-pub_twist_name = rospy.get_param("/follower_core/pub_twist_name")
+safety_dist    = rospy.get_param("/follower_control/safety_dist")
+pub_twist_name = rospy.get_param("/follower_control/pub_twist_name")
 
 
 class EmergencyStop():
@@ -23,12 +23,15 @@ class EmergencyStop():
         # min_distがsafety_dist以下の値であれば速度を0にする
         if min_dist < safety_dist:
             self.twist_pub.publish(self.twist)
-            rospy.loginfo("!!Emergency Stop!!")
+            rospy.loginfo("!Emergency Stop!")
         else:
             pass
 
 
 if __name__=='__main__':
-    rospy.init_node('emergency_stop', anonymous = True)
-    es = EmergencyStop()
-    rospy.spin()
+    try:
+        rospy.init_node('follower_emgstop', anonymous = True)
+        es = EmergencyStop()
+        rospy.spin()
+    except rospy.ROSException:
+        pass

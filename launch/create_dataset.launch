@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<launch>
+
+  <node pkg="rosbag" type="play" name="rosbag" required="true" args="$(find pd3_demo)/bag_files/empty_2.bag"/>
+
+  <node pkg="image_view" type="extract_images" name="extract" respawn="false" required="true" output="screen"  cwd="ROS_HOME">
+    <remap from="image" to="/laser_to_image"/>
+    <!-- valueの値に画像の保存先を指定する -->
+    <param name="filename_format" value="/home/demulab/empty_images_2/frame%04d.jpg" />
+  </node> 
+
+</launch>

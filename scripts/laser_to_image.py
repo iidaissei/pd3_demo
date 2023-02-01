@@ -94,6 +94,9 @@ class laser_to_image():
 
 
 if __name__=='__main__':
-    rospy.init_node('laser_to_image')
-    laser_to_image = laser_to_image()
-    rospy.spin()
+    try:
+        rospy.init_node('laser_to_image')
+        laser_to_image = laser_to_image()
+        rospy.spin()
+    except rospy.ROSException:
+        pass

@@ -1,8 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <launch>
 
+  <!-- LiDARデータを画像データに変換するノード -->
+  <node pkg="pd3_demo" type="laser_to_image.py" name="laser_to_image" output="screen">
+    <!-- 1[pixel] = disc_size[m]. 画像サイズに依存するので変更禁止-->
+    <param name="disc_size" type="double" value="0.01" />
+    <!-- 画像にプロットするLiDARデータの最大距離-->
+    <param name="max_range" type="double" value="2.5" />
+    <!-- 生成された画像を表示するか否かの変数-->
+    <param name="img_show"  type="bool"   value="false" />
+  </node>
+
   <!-- 人追従機能を実現するメインノード -->
-  <node pkg="pd3_demo" name="follower_core" type="follower_core.py" output="screen">
+  <node pkg="pd3_demo" type="follower_control.py" name="follower_control" output="screen">
 
     <!-- LiDarと人との目標距離[m] -->
     <param name="target_dist" type="double" value="0.5" />
@@ -19,23 +29,20 @@
     <param name="pub_twist_name"  type="str" value="/cmd_vel_mux/input/teleop" />
 
     <!-- 並進PID制御の各ゲイン -->
-    <param name="lKp"         type="double" value="0.0040" />
-    <param name="lKi"         type="double" value="0.0001" />
-    <param name="lKd"         type="double" value="0.005" />
+    <param name="lKp"         type="double" value="0.0013" />
+    <param name="lKi"         type="double" value="0.0013" />
+    <param name="lKd"         type="double" value="0.003" />
     <!-- 旋回PID制御の各ゲイン -->
-    <!-- <param name="aKp"         type="double" value="0.0032" /> -->
-    <param name="aKp"         type="double" value="0.0055" />
-    <!-- <param name="aKi"         type="double" value="0.0005" /> -->
-    <param name="aKi"         type="double" value="0.00030" />
-    <!-- <param name="aKd"         type="double" value="0.0048" /> -->
+    <param name="aKp"         type="double" value="0.0032" />
+    <param name="aKi"         type="double" value="0.0005" />
+    <!-- <param name="aKd"         type="double" value="0.0040" /> -->
     <param name="aKd"         type="double" value="0.0000" />
-    <!-- <param name="aKd"         type="double" value="0.0043" /> -->
 
     <!-- Twistの最大,最小速度 -->
-    <param name="max_linear"  type="double" value="0.17" />
-    <param name="min_linear"  type="double" value="0.00" />
-    <param name="max_angular" type="double" value="0.5" />
-    <param name="min_angular" type="double" value="-0.5" />
+    <param name="max_linear"  type="double" value="0.20" />
+    <param name="min_linear"  type="double" value="0.01" />
+    <param name="max_angular" type="double" value="0.4" />
+    <param name="min_angular" type="double" value="-0.4" />
 
   </node>
 

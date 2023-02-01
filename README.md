@@ -1,7 +1,7 @@
 human_follower
 ====
 
-human_followerはロボットの人追従機能を提供するROSパッケージです。
+test
 
 ## Description
 
@@ -17,4 +17,3 @@ human_followerはロボットの人追従機能を提供するROSパッケージ
 
 ## Author
 
-Issei Iida (Kanazawa Institute of Technology)

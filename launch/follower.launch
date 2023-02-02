@@ -12,8 +12,7 @@
   <!-- </node> -->
 
   <!-- 人追従機能を実現するメインノード -->
-  <!-- <node pkg="pd3_demo" type="follower_control.py" name="follower_control" output="screen"> -->
-  <node pkg="pd3_demo" type="follower_control2.py" name="follower_control" output="screen">
+  <node pkg="pd3_demo" type="follower_control.py" name="follower_control" output="screen">
 
     <!-- LiDarと人との目標距離[m] -->
     <param name="target_dist" type="double" value="0.5" />

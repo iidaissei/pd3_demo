@@ -70,8 +70,8 @@ class CreateImage():
 
 
 if __name__=='__main__':
+    rospy.init_node('follower_imgshow', anonymous = True)
     try:
-        rospy.init_node('follower_imgshow', anonymous = True)
         ci = CreateImage()
         rospy.spin()
     except rospy.ROSException:

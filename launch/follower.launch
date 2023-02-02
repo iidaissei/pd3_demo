@@ -30,18 +30,18 @@
 
     <!-- 並進PID制御の各ゲイン -->
     <param name="lKp"         type="double" value="0.0035" />
-    <param name="lKi"         type="double" value="0.0004" />
-    <param name="lKd"         type="double" value="0.0010" />
+    <param name="lKi"         type="double" value="0.0005" />
+    <param name="lKd"         type="double" value="0.0009" />
     <!-- 旋回PID制御の各ゲイン -->
-    <param name="aKp"         type="double" value="0.0027" />
-    <param name="aKi"         type="double" value="0.0012" />
-    <param name="aKd"         type="double" value="0.0000" />
+    <param name="aKp"         type="double" value="0.0021" />
+    <param name="aKi"         type="double" value="0.0015" />
+    <param name="aKd"         type="double" value="0.0002" />
 
     <!-- Twistの最大,最小速度 -->
     <param name="max_linear"  type="double" value="0.20" />
     <param name="min_linear"  type="double" value="0.01" />
-    <param name="max_angular" type="double" value="0.4" />
-    <param name="min_angular" type="double" value="-0.4" />
+    <param name="max_angular" type="double" value="0.30" />
+    <param name="min_angular" type="double" value="-0.30" />
 
   </node>
 

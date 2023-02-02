@@ -36,7 +36,7 @@ target_px = [250, 250 - round(target_dist/disc_size)]
 safety_dist = rospy.get_param("/follower_control/safety_dist")
 
 
-class HumanFollower():
+class FollowerControl():
     def __init__(self):
         self.bb_sub = rospy.Subscriber('/yolov5/detections', BoundingBoxes, self.yoloCB)
         self.scan_sub = rospy.Subscriber("/scan", LaserScan, self.scanCB)
@@ -96,7 +96,7 @@ class HumanFollower():
         print("pid_linear: %f, pid_angular: %f" % (pid_l, pid_a))
         print(self.twist.linear.x, self.twist.angular.z)
 
-    def followCtrl(self):
+    def execute(self):
         while not rospy.is_shutdown():
             # min_distがsafety_dist以下の値であれば緊急停止する
             if self.laser_dist < safety_dist:
@@ -117,7 +117,7 @@ class HumanFollower():
 if __name__=='__main__':
     rospy.init_node('follower_control', anonymous = True)
     try:
-        ci = HumanFollower()
-        ci.followCtrl()
+        fc = FollowerControl()
+        fc.execute()
     except rospy.ROSException:
         pass

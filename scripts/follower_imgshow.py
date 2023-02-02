@@ -14,13 +14,13 @@ disc_size   = rospy.get_param("/laser_to_image/disc_size")
 target_px = [250, 250 - round(target_dist/disc_size)]
 
 
-class CreateImage():
+class FollowerImshow():
     def __init__(self):
         self.bridge = cv_bridge.CvBridge()
-        rospy.Subscriber('/yolov5/detections', BoundingBoxes, self.yoloCB)
-        rospy.Subscriber('/scan_to_image', Image, self.showImage)
-        self.image = None
+        self.sub_bb = rospy.Subscriber('/yolov5/detections', BoundingBoxes, self.yoloCB)
+        self.sub_img = rospy.Subscriber('/scan_to_image', Image, self.showImage)
         self.cx = self.cy = None
+        self.image = None
 
     def yoloCB(self, bb_msg):
         if not bb_msg.bounding_boxes:
@@ -57,7 +57,7 @@ class CreateImage():
                   thickness = -1)
 
     # ウィンドウへの表示処理
-    def showImage(self, msg):
+    def execute(self, msg):
         self.image = self.bridge.imgmsg_to_cv2(msg, desired_encoding = 'bgr8')
         self.plotTargetPoint()
         self.plotRobotPoint()
@@ -72,7 +72,7 @@ class CreateImage():
 if __name__=='__main__':
     rospy.init_node('follower_imgshow', anonymous = True)
     try:
-        ci = CreateImage()
+        fi = FollowerImshow()
         rospy.spin()
     except rospy.ROSException:
         pass

@@ -11,7 +11,7 @@ pub_twist_name = rospy.get_param("/follower_control/pub_twist_name")
 
 class EmergencyStop():
     def __init__(self):
-        sub = rospy.Subscriber("/scan", LaserScan, self.twistPub)
+        self.sub = rospy.Subscriber("/scan", LaserScan, self.twistPub)
         self.twist_pub = rospy.Publisher(pub_twist_name, Twist, queue_size = 3)
         self.twist = Twist()
         self.twist.linear.x = self.twist.angular.z = 0.0
@@ -29,8 +29,8 @@ class EmergencyStop():
 
 
 if __name__=='__main__':
+    rospy.init_node('follower_emgstop', anonymous = True)
     try:
-        rospy.init_node('follower_emgstop', anonymous = True)
         es = EmergencyStop()
         rospy.spin()
     except rospy.ROSException:

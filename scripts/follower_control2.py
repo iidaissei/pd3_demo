@@ -4,6 +4,7 @@
 import rospy
 from pd3_demo.msg import Follower
 from geometry_msgs.msg import Twist
+from sensor_msgs.msg import LaserScan
 from detection_msgs.msg import BoundingBoxes
 
 # 制御関連のパラメータ
@@ -13,34 +14,54 @@ lKd = rospy.get_param("/follower_control/lKd")
 aKp = rospy.get_param("/follower_control/aKp")
 aKi = rospy.get_param("/follower_control/aKi")
 aKd = rospy.get_param("/follower_control/aKd")
-max_linear  = rospy.get_param("/follower_control/max_linear")
-min_linear  = rospy.get_param("/follower_control/min_linear")
+max_linear = rospy.get_param("/follower_control/max_linear")
+min_linear = rospy.get_param("/follower_control/min_linear")
 max_angular = rospy.get_param("/follower_control/max_angular")
 min_angular = rospy.get_param("/follower_control/min_angular")
 pub_twist_name = rospy.get_param("/follower_control/pub_twist_name")
 
 # 人を認識する範囲のパラメータ
-range_xmin     = rospy.get_param("/follower_control/range_xmin")
-range_xmax     = rospy.get_param("/follower_control/range_xmax")
-range_ymin     = rospy.get_param("/follower_control/range_ymin")
-range_ymax     = rospy.get_param("/follower_control/range_ymax")
+range_xmin = rospy.get_param("/follower_control/range_xmin")
+range_xmax = rospy.get_param("/follower_control/range_xmax")
+range_ymin = rospy.get_param("/follower_control/range_ymin")
+range_ymax = rospy.get_param("/follower_control/range_ymax")
 
 # 目標座標(target_px)の生成に使用するパラメータ
-disc_size      = rospy.get_param("/laser_to_image/disc_size")
-target_dist    = rospy.get_param("/follower_control/target_dist")
+disc_size = rospy.get_param("/laser_to_image/disc_size")
+target_dist = rospy.get_param("/follower_control/target_dist")
 # 目標座標の生成. [x座標, y座標]
 target_px = [250, 250 - round(target_dist/disc_size)]
+
+# 緊急停止処理で使用する安全距離[m].
+safety_dist = rospy.get_param("/follower_control/safety_dist")
 
 
 class HumanFollower():
     def __init__(self):
-        self.bb_sub = rospy.Subscriber('/yolov5/detections', BoundingBoxes, self.followCtrl)
+        self.bb_sub = rospy.Subscriber('/yolov5/detections', BoundingBoxes, self.yoloCB)
+        self.scan_sub = rospy.Subscriber("/scan", LaserScan, self.scanCB)
         self.twist_pub = rospy.Publisher(pub_twist_name, Twist, queue_size = 10)
-        self.last_err_x = self.last_err_y = 0.0
-        self.cx = self.cy = None
         self.twist = Twist()
+        self.cx = self.cy = None
+        self.last_err_x = self.last_err_y = 0.0
+        self.rate = rospy.Rate(100)
+        self.laser_dist = 999
         self.pd3_pub = rospy.Publisher("/pd3_topic", Follower, queue_size = 10)
         self.pd3_data = Follower()
+
+    def yoloCB(self, bb_msg):
+        if not bb_msg.bounding_boxes:
+            self.cx = self.cy = None
+        else:
+            # BoundingBoxesのClass"human"から重心座標を算出する
+            bb_human = bb_msg.bounding_boxes[0]
+            self.cx = round(bb_human.xmin + (bb_human.xmax - bb_human.xmin)/2)
+            self.cy = round(bb_human.ymin + (bb_human.ymax - bb_human.ymin)/2)
+
+    def scanCB(self, scan):
+        # 小さすぎる値を取り除く処理
+        filtered_ranges = [i for i in scan.ranges if not i < 0.05]
+        self.laser_dist = min(filtered_ranges)
 
     def pidUpdate(self):
         # 重心座標と目標座標の偏差を求める
@@ -75,31 +96,28 @@ class HumanFollower():
         print("pid_linear: %f, pid_angular: %f" % (pid_l, pid_a))
         print(self.twist.linear.x, self.twist.angular.z)
 
-    def followCtrl(self, bb_msg):
-        if not bb_msg.bounding_boxes:
-            self.cx = self.cy = None
-            # self.twist.linear.x = self.twist.angular.z = 0.0
-            rospy.loginfo("No human detected...")
-        else:
-            # BoundingBoxesのClass"human"から重心座標を算出する
-            bb_human = bb_msg.bounding_boxes[0]
-            self.cx = round(bb_human.xmin + (bb_human.xmax - bb_human.xmin)/2)
-            self.cy = round(bb_human.ymin + (bb_human.ymax - bb_human.ymin)/2)
-            if range_xmin <= self.cx <= range_xmax and range_ymin <= self.cy <= range_ymax: 
+    def followCtrl(self):
+        while not rospy.is_shutdown():
+            # min_distがsafety_dist以下の値であれば緊急停止する
+            if self.laser_dist < safety_dist:
+                self.twist.linear.x = self.twist.angular.z = 0.0
+                rospy.loginfo("Emergency Stop!!")
+            elif self.cx == None:
+                rospy.loginfo("No Human detected...")
+            elif range_xmin <= self.cx <= range_xmax and range_ymin <= self.cy <= range_ymax: 
                 self.pidUpdate()
-                rospy.loginfo("Human detected...")
+                rospy.loginfo("Human detected")
             else:
-                self.twist.linear.x = self.twist.angular.z = 0.01
                 rospy.loginfo("Out of range...")
                 pass
             self.twist_pub.publish(self.twist)
-            # rospy.sleep(0.01)
+            self.rate.sleep()
 
 
 if __name__=='__main__':
     rospy.init_node('follower_control', anonymous = True)
     try:
         ci = HumanFollower()
-        rospy.spin()
+        ci.followCtrl()
     except rospy.ROSException:
         pass

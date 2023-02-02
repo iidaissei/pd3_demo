@@ -2,17 +2,18 @@
 <launch>
 
   <!-- LiDARデータを画像データに変換するノード -->
-  <node pkg="pd3_demo" type="laser_to_image.py" name="laser_to_image" output="screen">
-    <!-- 1[pixel] = disc_size[m]. 画像サイズに依存するので変更禁止-->
-    <param name="disc_size" type="double" value="0.01" />
-    <!-- 画像にプロットするLiDARデータの最大距離-->
-    <param name="max_range" type="double" value="2.5" />
-    <!-- 生成された画像を表示するか否かの変数-->
-    <param name="img_show"  type="bool"   value="false" />
-  </node>
+  <!-- <node pkg="pd3_demo" type="laser_to_image.py" name="laser_to_image" output="screen"> -->
+  <!--   &#60;&#33;&#45;&#45; 1[pixel] = disc_size[m]. 画像サイズに依存するので変更禁止&#45;&#45;&#62; -->
+  <!--   <param name="disc_size" type="double" value="0.01" /> -->
+  <!--   &#60;&#33;&#45;&#45; 画像にプロットするLiDARデータの最大距離&#45;&#45;&#62; -->
+  <!--   <param name="max_range" type="double" value="2.5" /> -->
+  <!--   &#60;&#33;&#45;&#45; 生成された画像を表示するか否かの変数&#45;&#45;&#62; -->
+  <!--   <param name="img_show"  type="bool"   value="false" /> -->
+  <!-- </node> -->
 
   <!-- 人追従機能を実現するメインノード -->
-  <node pkg="pd3_demo" type="follower_control.py" name="follower_control" output="screen">
+  <!-- <node pkg="pd3_demo" type="follower_control.py" name="follower_control" output="screen"> -->
+  <node pkg="pd3_demo" type="follower_control2.py" name="follower_control" output="screen">
 
     <!-- LiDarと人との目標距離[m] -->
     <param name="target_dist" type="double" value="0.5" />
@@ -29,13 +30,12 @@
     <param name="pub_twist_name"  type="str" value="/cmd_vel_mux/input/teleop" />
 
     <!-- 並進PID制御の各ゲイン -->
-    <param name="lKp"         type="double" value="0.0013" />
-    <param name="lKi"         type="double" value="0.0013" />
-    <param name="lKd"         type="double" value="0.003" />
+    <param name="lKp"         type="double" value="0.0035" />
+    <param name="lKi"         type="double" value="0.0004" />
+    <param name="lKd"         type="double" value="0.0010" />
     <!-- 旋回PID制御の各ゲイン -->
-    <param name="aKp"         type="double" value="0.0032" />
-    <param name="aKi"         type="double" value="0.0005" />
-    <!-- <param name="aKd"         type="double" value="0.0040" /> -->
+    <param name="aKp"         type="double" value="0.0027" />
+    <param name="aKi"         type="double" value="0.0012" />
     <param name="aKd"         type="double" value="0.0000" />
 
     <!-- Twistの最大,最小速度 -->
@@ -47,9 +47,9 @@
   </node>
 
   <!-- 人の重心座標や目標座標、ロボット座標を描画するノード -->
-  <node pkg="pd3_demo" type="follower_imgshow.py" name="follower_imgshow" output="screen"/>
+  <!-- <node pkg="pd3_demo" type="follower_imgshow.py" name="follower_imgshow" output="screen"/> -->
 
   <!-- 緊急停止処理を行うノード -->
-  <node pkg="pd3_demo" type="emergency_stop.py" name="emergency_stop" output="screen"/>
+  <!-- <node pkg="pd3_demo" type="follower_emgstop.py" name="follower_emgstop" output="screen"/> -->
 
 </launch>

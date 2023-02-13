@@ -44,7 +44,7 @@ class FollowerControl():
         self.twist = Twist()
         self.cx = self.cy = None
         self.last_err_x = self.last_err_y = 0.0
-        self.rate = rospy.Rate(100)
+        self.rate = rospy.Rate(50)
         self.laser_dist = 999
         self.pd3_pub = rospy.Publisher("/pd3_topic", Follower, queue_size = 10)
         self.pd3_data = Follower()

@@ -29,19 +29,19 @@
     <param name="pub_twist_name"  type="str" value="/cmd_vel_mux/input/teleop" />
 
     <!-- 並進PID制御の各ゲイン -->
-    <param name="lKp"         type="double" value="0.0035" />
-    <param name="lKi"         type="double" value="0.0005" />
+    <param name="lKp"         type="double" value="0.0039" />
+    <param name="lKi"         type="double" value="0.0008" />
     <param name="lKd"         type="double" value="0.0009" />
     <!-- 旋回PID制御の各ゲイン -->
-    <param name="aKp"         type="double" value="0.0021" />
-    <param name="aKi"         type="double" value="0.0015" />
-    <param name="aKd"         type="double" value="0.0002" />
+    <param name="aKp"         type="double" value="0.0023" />
+    <param name="aKi"         type="double" value="0.0009" />
+    <param name="aKd"         type="double" value="0.0004" />
 
     <!-- Twistの最大,最小速度 -->
-    <param name="max_linear"  type="double" value="0.20" />
-    <param name="min_linear"  type="double" value="0.01" />
-    <param name="max_angular" type="double" value="0.30" />
-    <param name="min_angular" type="double" value="-0.30" />
+    <param name="max_linear"  type="double" value="0.23" />
+    <param name="min_linear"  type="double" value="0.00" />
+    <param name="max_angular" type="double" value="0.35" />
+    <param name="min_angular" type="double" value="-0.35" />
 
   </node>
 

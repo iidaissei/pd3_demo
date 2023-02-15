@@ -23,7 +23,7 @@ imshow_flg = rospy.get_param("/laser_to_image/img_show")
 class laser_to_image():
     def __init__(self):
         self.joy_sub = rospy.Subscriber('/scan',LaserScan,self.cloud_to_image_callback)
-        self.pub = rospy.Publisher('/scan_to_image',Image, queue_size = 10)
+        self.pub = rospy.Publisher('/laser_to_image',Image, queue_size = 10)
         self.bridge = CvBridge()
 
     def cloud_to_image_callback(self, scan):

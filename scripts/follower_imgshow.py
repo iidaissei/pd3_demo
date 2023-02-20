@@ -18,7 +18,7 @@ class FollowerImshow():
     def __init__(self):
         self.bridge = cv_bridge.CvBridge()
         self.sub_bb = rospy.Subscriber('/yolov5/detections', BoundingBoxes, self.yoloCB)
-        self.sub_img = rospy.Subscriber('/scan_to_image', Image, self.showImage)
+        self.sub_img = rospy.Subscriber('/laser_to_image', Image, self.showImage)
         self.cx = self.cy = None
         self.image = None
 
